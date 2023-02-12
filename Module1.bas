@@ -1,0 +1,125 @@
+Attribute VB_Name = "Module1"
+Sub Stock_analyis()
+ 
+ 'VARIABLE DECLARATION
+  Dim Ticker_Symbol As String
+  Dim Yearly_Price_Change As Double
+  Dim Yearly_Price_Percentage_Change As Double
+  Dim Total_Stock_Volume As Double
+  Dim Stock_analysis_Table_Row As Integer
+  Dim Lastrow As Long
+  Dim Stock_Volume As Double
+  
+
+  'VARIABLE ASSIGNMENT
+  For Each ws In Worksheets
+  
+  ws.Activate    'ACTIVATE WORKSHEETS
+  
+  ws.Cells(1, 11) = "Ticker_Symbol"
+  ws.Cells(1, 12) = "Yearly_Price_Change"
+  ws.Cells(1, 13) = "Yearly_Price_Percentage_change "
+  ws.Cells(1, 14) = "Total_Stock_Volume"
+  
+  ws.Cells(2, 16) = "Greastest % Increase"
+  ws.Cells(3, 16) = "Greastest % Decrease"
+  ws.Cells(4, 16) = "Greatest Total Volume "
+  ws.Cells(1, 17) = "TickerSymbol"
+  ws.Cells(1, 18) = "Total Stock Value"
+  
+  
+  Stock_analysis_Table_Row = 2         'STARTING ROW FOR THE SUMMARY
+  Stock_Volume = 0
+  
+  Lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row     'ROW COUNTING
+  
+  
+  'LOOP STOCK ANALYSIS FOR ALL WORKSHEETS
+  For i = 2 To Lastrow
+  
+    
+           If ws.Cells(i - 1, 1).Value <> ws.Cells(i, 1).Value Then
+                      
+            Yearly_Opening_price = ws.Cells(i, 3)
+  
+            ElseIf ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then           'FOR LOOPING
+        
+                Ticker_Symbol = ws.Cells(i, 1).Value                               'SET THE TICKER_SYMBOL AS VARIABLE ASSIGNED WITH CELLS(I,1)
+                Stock_Volume = Stock_Volume + ws.Cells(i, 7).Value                 'ADD TO THE STOCK_VOLUME AS A VARIABLE AS WITH CELLS(I,7)
+
+                ws.Range("K" & Stock_analysis_Table_Row).Value = Ticker_Symbol     'PUT THE VALUE OF TICKER_SYMBOL IN RANGE(K COLUMN)
+                ws.Range("N" & Stock_analysis_Table_Row).Value = Stock_Volume      'PRINT THE BRAND AMOUNT TO THE SUMMARY TABLE
+                
+                Stock_Volume = 0                                                'RESET THE TOTAL STOCK_Volume
+                Yearly_Closing_price = ws.Cells(i, 6)
+              
+                Yearly_Price_Change = Yearly_Closing_price - Yearly_Opening_price     'YEARLY CHANGE
+                Yearly_Price_Percentage_Change = (Yearly_Price_Change) / (Yearly_Opening_price) 'PERCENTAGE CHNAGE
+                ws.Range("L" & Stock_analysis_Table_Row).Value = Yearly_Price_Change
+                ws.Range("M" & Stock_analysis_Table_Row).Value = Yearly_Price_Percentage_Change
+                Stock_analysis_Table_Row = Stock_analysis_Table_Row + 1         'ADD ONE TO THE SUMMARY TABLE ROW
+                
+             'RESETTING FOR NEXT PHASE
+             Yearly_Price_Change = 0
+             Yearly_Price_Percentage_Change = 0
+             
+            Else
+                Stock_Volume = Stock_Volume + ws.Cells(i, 7).Value      'ADD TO THE STOCK_ VOLUME
+                
+            
+               
+            End If
+
+  Next i
+  
+  
+ 
+  'GREATEST % INCREASE, GREAT % DECREASE, AND GREAT TOTAL STOCK VOLUME , USING BUILT-IN FUNCTION
+  Lastrow1 = ws.Cells(Rows.Count, 11).End(xlUp).Row
+
+  ws.Range("R2").Value = WorksheetFunction.Max(Range("M2:M" & Lastrow1))
+  ws.Range("R3").Value = WorksheetFunction.Min(Range("M2:M" & Lastrow1))
+  ws.Range("R4").Value = WorksheetFunction.Max(Range("N2:N" & Lastrow1))
+  
+  'CORRESPONING MAX%, MIN% AND MAX TICKER_Symbol
+  maxrow = WorksheetFunction.Match(WorksheetFunction.Max(Range("M2:M" & Lastrow1)), Range("M1:M" & Lastrow1), 0)
+  minrow = WorksheetFunction.Match(WorksheetFunction.Min(Range("M2:M" & Lastrow1)), Range("M1:M" & Lastrow1), 0)
+  volrow = WorksheetFunction.Match(WorksheetFunction.Max(Range("N2:N" & Lastrow1)), Range("N1:N" & Lastrow1), 0)
+  
+  ws.Range("Q2").Value = ws.Range("K" & maxrow).Value
+  ws.Range("Q3").Value = ws.Range("K" & minrow).Value
+  ws.Range("Q4").Value = ws.Range("K" & volrow).Value
+  
+  
+  'CONDITIONAL FORMATING OF YEARLY_PRICE_CHANGE
+  For j = 2 To Lastrow1
+     If ws.Cells(j, 12) > 0 Then
+        ws.Cells(j, 12).Interior.ColorIndex = 3
+        ws.Cells(j, 13).Interior.ColorIndex = 3
+     Else
+        ws.Cells(j, 12).Interior.ColorIndex = 50
+        ws.Cells(j, 13).Interior.ColorIndex = 50
+     End If
+  Next j
+  
+  
+ 'CELL SIZING AND INTERIOR COLOR FILLING
+ws.Range("K1:N1").Columns.AutoFit
+ws.Range("Q1:R1").Columns.AutoFit
+ws.Range("Q1:R1").Columns.AutoFit
+ws.Range("P2:R4").Columns.AutoFit
+
+ws.Range("K1:N1").Interior.ColorIndex = 43
+ws.Range("Q1:R1").Interior.ColorIndex = 43
+ws.Range("P2:P4").Interior.ColorIndex = 43
+ws.Range("R1:R4").Columns.AutoFit
+
+
+
+
+Next ws
+
+End Sub
+
+
+
